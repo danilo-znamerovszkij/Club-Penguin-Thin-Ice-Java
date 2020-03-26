@@ -19,8 +19,8 @@ public class Game extends JFrame {
 
         setTitle("Thin Ice");
         
-        setSize(board.getBoardWidth() + OFFSET,
-                board.getBoardHeight() + 2 * OFFSET);
+        setSize(700,
+                400);
         
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
