@@ -19,7 +19,16 @@ public class Board extends JPanel {
     private final int IN_GAME = 2;
     private final int ON_PAUSE = 3;
 
+    private GUI gui;
     private StateObserver stateObserver;
+    private StartGame startGame;
+    private PauseGame pauseGame;
+    private EndGame endGame;
+
+    private EasyLevel easyLevel;
+    private MediumLevel mediumLevel;
+    private HardLevel hardLevel;
+
     private ArrayList<Block> blocks;
     private ArrayList<MoneyBag> bags;
     private ArrayList<NextLevelDoor> nextLevelDoors;
@@ -35,40 +44,6 @@ public class Board extends JPanel {
 
     private String currentLevel;
 
-    private String level3
-            = "    #########################\n"
-            + "    ##############     $ #\n"
-            + "    ##$          #   #     #\n"
-            + "  ####      ####   ###   ####$##\n"
-            + "  ##  $ $ #               ####  \n"
-            + "#### # ## #   #########   ########\n"
-            + "##   # ## #####  #    @#######    ###\n"
-            + "###   $  $        ########       ####\n"
-            + "###  ### ##          $           @ #\n"
-            + "##   ##     ############################\n"
-            + "# . ########\n"
-            + "#########\n";
-
-    private String level2
-            = "    ######\n"
-            + "    ##   #\n"
-            + "    ##$  #\n"
-            + "  ####  $##\n"
-            + "  ##  $ $ #\n"
-            + "#### # ## #   #################\n"
-            + "##   # ## #####  #    @#####\n"
-            + "###  ## $  $        ########\n"
-            + "###  ### ### # ##  #\n"
-            + "##   ##     #########\n"
-            + "# . ########\n"
-            + "#  #######\n";
-
-    private String level1
-            = "    ##################\n"
-            + "    ##.       $     @#\n"
-            + "    ##################\n";
-
-
     public Board() {
 
         initBoard();
@@ -76,22 +51,25 @@ public class Board extends JPanel {
 
     private void initBoard() {
 
-        currentLevel = level1;
+        gui = new GUI();
+        easyLevel = new EasyLevel();
         stateObserver = new StateObserver();
+
+        //commands
+        startGame= new StartGame();
+        pauseGame = new PauseGame();
+        endGame = new EndGame();
+
+        //level generators
+        easyLevel = new EasyLevel();
+        mediumLevel = new MediumLevel();
+        hardLevel = new HardLevel();
+
+        currentLevel = easyLevel.generate();
 
         addKeyListener(new TAdapter());
         setFocusable(true);
         initWorld(currentLevel);
-    }
-
-    public int getBoardWidth() {
-
-        return this.w;
-    }
-
-    public int getBoardHeight() {
-
-        return this.h;
     }
 
     private void initWorld(String level) {
@@ -159,94 +137,6 @@ public class Board extends JPanel {
         }
     }
 
-    private void buildMenu(Graphics g) {
-
-        g.setColor(new Color(18, 0, 162));
-        g.fillRect(0, 0, this.getWidth(), this.getHeight());
-
-        g.setFont(new Font("Gill Sans", Font.PLAIN, 20));
-
-        //set score
-
-        Toolkit t = Toolkit.getDefaultToolkit();
-        Image i = t.getImage("src/resources/startScreen.jpg");
-        g.drawImage(i, 95, 0, this);
-
-        g.setColor(new Color(255, 255, 255));
-        g.drawString("Start by pressing any key", this.getWidth() - 460, this.getHeight() - 10);
-
-    }
-
-    private void buildWorld(Graphics g) {
-
-        g.setColor(new Color(143, 198, 250));
-        g.fillRect(0, 0, this.getWidth(), this.getHeight());
-
-
-        ArrayList<Piece> world = new ArrayList<>();
-
-        world.addAll(blocks);
-        world.addAll(nextLevelDoors);
-        world.addAll(bags);
-        world.addAll(meltedBlocks);
-
-        world.add(penguin);
-
-        for (int i = 0; i < world.size(); i++) {
-
-            Piece item = world.get(i);
-
-            if (item instanceof Player || item instanceof MoneyBag) {
-
-                g.drawImage(item.getImage(), item.x() + 2, item.y() + 2, this);
-            } else {
-
-                g.drawImage(item.getImage(), item.x(), item.y(), this);
-            }
-
-            g.setFont(new Font("Gill Sans", Font.PLAIN, 15));
-
-            //set score
-            g.setColor(new Color(155, 16, 19));
-            g.drawString("Score: " + score, 460, 20);
-
-            //restart tips
-            g.setFont(new Font("Gill Sans", Font.PLAIN, 13));
-            g.setColor(new Color(155, 16, 19));
-            g.drawString("To restart press R", 460, 350);
-
-            if (isCompleted) {
-                g.setFont(new Font("Gill Sans", Font.PLAIN, 25));
-                g.setColor(new Color(0, 0, 0));
-                g.drawString("Completed", 25, 20);
-            }
-
-        }
-    }
-
-    private void pauseMenu(Graphics g) {
-
-        buildWorld(g);
-        g.setColor(new Color(4, 4, 75));
-
-        g.fillRect(this.getWidth() / 4, this.getHeight() / 4, this.getWidth() / 2, this.getHeight() / 2);
-
-        g.setFont(new Font("Gill Sans", Font.PLAIN, 22));
-
-        //set score
-        g.setColor(new Color(255, 255, 255));
-        g.drawString("Restart (R)", this.getWidth() / 4 + 30, this.getHeight() / 4 + 50);
-
-        g.drawString("Back to main menu (M)", this.getWidth() / 4 + 30, this.getHeight() / 4 + 120);
-
-        if (isCompleted) {
-            g.setFont(new Font("Gill Sans", Font.PLAIN, 25));
-            g.setColor(new Color(0, 0, 0));
-            g.drawString("Completed", 25, 20);
-        }
-
-    }
-
     @Override
     public void paintComponent(Graphics g) {
 
@@ -254,13 +144,32 @@ public class Board extends JPanel {
 
         switch (stateObserver.getCurrentState()) {
             case 1:
-                buildMenu(g);
+                gui.buildMenu(g, this);
                 break;
             case 2:
-                buildWorld(g);
+
+                //prepare components
+                ArrayList<Piece> world = new ArrayList<>();
+                world.addAll(blocks);
+                world.addAll(nextLevelDoors);
+                world.addAll(bags);
+                world.addAll(meltedBlocks);
+                world.add(penguin);
+
+                gui.buildLevels(g, this, isCompleted, score, world);
                 break;
             case 3:
-                pauseMenu(g);
+                //draw again for background
+                world = new ArrayList<>();
+                world.addAll(blocks);
+                world.addAll(nextLevelDoors);
+                world.addAll(bags);
+                world.addAll(meltedBlocks);
+                world.add(penguin);
+
+                gui.buildLevels(g, this, isCompleted, score, world);
+
+                gui.pauseMenu(g);
                 break;
 
         }
@@ -429,14 +338,13 @@ public class Board extends JPanel {
         if (penguin.x() == nextLevelDoor.x() && penguin.y() == nextLevelDoor.y()) {
 
             isCompleted = true;
-            if (currentLevel.equals(level1)) {
-                currentLevel = level2;
-
-            } else if (currentLevel.equals(level2)) {
-                currentLevel = level3;
-            } else if (currentLevel.equals(level3)) {
-                currentLevel = level1;
-                stateObserver.setState(IN_MAIN_MENU);
+            if (currentLevel.equals(easyLevel.generate())) {
+                currentLevel = mediumLevel.generate();
+            } else if (currentLevel.equals(mediumLevel.generate())) {
+                currentLevel = hardLevel.generate();
+            } else if (currentLevel.equals(hardLevel.generate())) {
+                currentLevel = easyLevel.generate();
+                endGame.init(stateObserver);
             }
 
             //initiate the next level
@@ -566,7 +474,7 @@ public class Board extends JPanel {
                         break;
 
                     case KeyEvent.VK_P:
-                        stateObserver.setState(ON_PAUSE);
+                        pauseGame.init(stateObserver);
                         break;
 
                     default:
@@ -577,21 +485,21 @@ public class Board extends JPanel {
 
                     case KeyEvent.VK_R:
 
-                        stateObserver.setState(IN_GAME);
+                        startGame.init(stateObserver);
                         restartLevel();
 
                         break;
 
                     case KeyEvent.VK_M:
 
-                        stateObserver.setState(IN_MAIN_MENU);
-                        currentLevel = level1;
+                        endGame.init(stateObserver);
+                        currentLevel = easyLevel.generate();
 
                         break;
 
                     case KeyEvent.VK_P:
 
-                        stateObserver.setState(IN_GAME);
+                        startGame.init(stateObserver);
                         break;
 
                     default:
@@ -599,7 +507,7 @@ public class Board extends JPanel {
                 }
             else if (stateObserver.getCurrentState() == IN_MAIN_MENU)
                 if (key > 0) {
-                    stateObserver.setState(IN_GAME);
+                    startGame.init(stateObserver);
                 }
             repaint();
         }
