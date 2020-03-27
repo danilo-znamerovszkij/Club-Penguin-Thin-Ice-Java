@@ -35,8 +35,6 @@ public class Board extends JPanel {
     private ArrayList<MeltedIce> meltedBlocks;
 
     private Player penguin;
-    private int w = 0;
-    private int h = 0;
 
     private int score = 0;
 
@@ -95,10 +93,6 @@ public class Board extends JPanel {
                 case '\n':
                     y += SPACE;
 
-                    if (this.w < x) {
-                        this.w = x;
-                    }
-
                     x = OFFSET;
                     break;
 
@@ -133,7 +127,6 @@ public class Board extends JPanel {
                     break;
             }
 
-            h = y;
         }
     }
 

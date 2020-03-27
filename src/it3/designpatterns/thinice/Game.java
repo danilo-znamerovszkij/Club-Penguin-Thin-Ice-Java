@@ -1,3 +1,9 @@
+/**
+ * A game "Thin Ice" is done as a final assignment for Design Patterns P3 2020
+ *
+ * by group IT3
+ * Danilo Znamerovszkij, Erik Naljota, Ioana Cojocaru, Rudolphs Prauliņš
+ * */
 package it3.designpatterns.thinice;
 
 import java.awt.*;
