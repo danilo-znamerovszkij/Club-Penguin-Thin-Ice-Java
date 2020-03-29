@@ -24,10 +24,6 @@ public class GUI {
         Toolkit t = Toolkit.getDefaultToolkit();
         Image i = t.getImage("src/resources/startScreen.jpg");
         g.drawImage(i, 95, 5, board);
-
-        g.setColor(new Color(255, 255, 255));
-        g.drawString("Start by pressing any key", 320, 370);
-
     }
 
     public void buildLevels(Graphics g, Board board, boolean isCompleted, int score, ArrayList<Piece> world) {
